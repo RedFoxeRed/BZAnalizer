@@ -31,8 +31,6 @@ namespace BZAnalizer.Service
             {
                 SeparateText(workBlocks, DataFields.elementBlockNames, mainBlocks.FirstOrDefault(x => x.name == "Рабочая установка").text, true);
                 SeparateText(reserveBlocks, DataFields.elementBlockNames, mainBlocks.FirstOrDefault(x => x.name == "Резервная установка").text, true);
-
-                //SeparateText(blocksFan, DataFields.FanBlockParametrs, workBlocks.FirstOrDefault(x => x.name == "Приточный вентилятор").text, true);
             }
             else
             {
@@ -43,9 +41,25 @@ namespace BZAnalizer.Service
             foreach (var block in workBlocks) 
             {
                 List<MainBlock> parameters = new List<MainBlock>();
-                SeparateText(parameters, DataFields.FanBlockParametrs, workBlocks.FirstOrDefault(x => x.name == "Приточный вентилятор").text, true);
-                elements.Add(new WorkElement("Приточный вентилятор", workBlocks.FirstOrDefault(x => x.name == "Приточный вентилятор").text, parameters, true));
+                SeparateText(parameters, DataFields.BlockParameters[block.name], block.text, true);
+                elements.Add(new WorkElement(block.name, block.text, parameters, true));
             }
+            foreach (var block in reserveBlocks)
+            {
+                List<MainBlock> parameters = new List<MainBlock>();
+                SeparateText(parameters, DataFields.BlockParameters[block.name], block.text, true);
+                elements.Add(new WorkElement(block.name, block.text, parameters, false));
+            }
+
+            List<MainBlock> parametersDevices = new List<MainBlock>();
+            SeparateText(parametersDevices, DataFields.BlockParameters["Контрольно-измерительные приборы и элементы автоматики"], mainBlocks.FirstOrDefault(x => x.name == "Контрольно-измерительные приборы и элементы автоматики").text, true);
+            
+            foreach(var device in parametersDevices)
+            {
+                elements.Add(new WorkElement(device.name, device.text));
+            }
+            ElementHandler.CheckCHPVent(elements);
+
         }
         private string ExtractTextFromPdf()
         {
