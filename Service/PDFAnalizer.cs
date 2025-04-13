@@ -38,6 +38,11 @@ namespace BZAnalizer.Service
                 SeparateText(reserveBlocks, DataFields.elementBlockNames, mainBlocks.FirstOrDefault(x => x.name == "Габаритные размеры установки").text, true);
             }
 
+            List<MainBlock> waterSector = new List<MainBlock>();
+
+            SeparateText(waterSector, DataFields.BlockParameters["Узел водосмесительный"], mainBlocks.FirstOrDefault(x => x.name == "Узел водосмесительный").text, true);
+
+
             foreach (var block in workBlocks) 
             {
                 List<MainBlock> parameters = new List<MainBlock>();
