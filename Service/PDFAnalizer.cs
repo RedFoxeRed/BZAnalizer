@@ -162,5 +162,7 @@ namespace BZAnalizer.Service
                     Console.WriteLine($"\n\n{block.name}: {block.text}");
             }
         }
+        public List<WorkElement> GetAllElements()
+            { return elements; }
     }
 }

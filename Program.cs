@@ -13,7 +13,10 @@ namespace BZAnalizer
         {
             string path = "C:\\Users\\kku\\Desktop\\папка БЗ\\testPDFForSan.pdf";
 
+            string pathSila = "";
+            string pathControl = "";
             PDFAnalizer pDFAnalizer = new PDFAnalizer(path);
+            ExcelGen.Generate(pDFAnalizer.GetAllElements(), pathSila, pathControl);
         }
     }
 }
