@@ -29,7 +29,7 @@ namespace BZAnalizer.Models
         public string stringParameters; // Параметры элемента
         public string mainOrReserveString; // осн/рез
         public string numberVvod; // Ввод (1 / 2)
-        public string sysNumber; // Номер системы
+        public string sysNumber = "1"; // Номер системы
         public bool printForSila = false;
 
         #endregion
