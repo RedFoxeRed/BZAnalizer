@@ -11,7 +11,7 @@ namespace BZAnalizer
     {
         static void Main(string[] args)
         {
-            string path = "C:\\Users\\kku\\Desktop\\папка БЗ\\testPDFForSan.pdf";
+            string path = "C:\\Users\\kku\\Desktop\\папка БЗ\\prikolKompressora.pdf";
 
             string pathSila = "";
             string pathControl = "";

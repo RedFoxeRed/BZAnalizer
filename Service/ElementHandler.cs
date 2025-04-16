@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UglyToad.PdfPig.AcroForms.Fields;
 
 namespace BZAnalizer.Service
 {
@@ -19,7 +20,10 @@ namespace BZAnalizer.Service
                 { "Нагреватель жидкостный", UpdateInfo_OTHER },
                 { "Испаритель", UpdateInfo_OTHER },
                 { "Прогрев", UpdateInfo_PROGREV },
-                { "Освещение", UpdateInfo_LIGHT }
+                { "Освещение", UpdateInfo_LIGHT },
+                { "Насос циркуляционный", UpdateInfo_NASOS },
+                { "Электропривод клапана", UpdateInfo_UVS },
+                { "ЭК", UpdateInfo_EK }
             };
 
         private static void UpdateInfo_FAN(WorkElement element)
@@ -104,6 +108,53 @@ namespace BZAnalizer.Service
             element.stringParameters = "10 Вт";
             element.printForSila = true;
         }
+        public static void UpdateInfo_NASOS(WorkElement element)
+        {
+            string check24VorSK = "24В=";
+
+            string pwr = (Convert.ToDouble(element.parameters.FirstOrDefault(x => x.name == "Потребляемая мощность (Вт)").text.Trim()) / 1000) + "кВт; ";
+
+            string fase = "1Ф; ";
+
+            if (element.parameters.FirstOrDefault(x => x.name == "Параметры электропитания (В) - тип").text.ToLower().Contains("400"))
+                fase = "3Ф; ";
+
+            string denomination = element.parameters.FirstOrDefault(x => x.name == "Сила тока (A)").text + "А";
+
+            element.description = "Pump/\r\nНасос";
+            element.article = "nasos";
+            element.fullnameElement = "Насос " + check24VorSK;
+
+            element.stringParameters = pwr + fase + denomination;
+            element.printForSila = true;
+
+        }
+        public static void UpdateInfo_UVS(WorkElement element)
+        {
+            if (element.parameters.FirstOrDefault(x => x.name == "Напряжение питания (В)").text.Contains("230"))
+                element.printForSila = true;
+
+            element.description = "Water valve with electric\r\ndrive /Клапан водяной с\r\nэл. Приводом";
+            element.article = "clapanUVS";
+
+            element.fullnameElement = "Заслонка 230В без пружины (упр. 24В=)";
+
+            element.stringParameters = element.parameters.FirstOrDefault(x => x.name == "Потребляемая мощность (Вт)").text.Trim() + " Вт";
+
+        }
+        public static void UpdateInfo_EK(WorkElement element)
+        {
+            string check24VorSK = "24В=";
+
+
+            element.description = $"ЭК Ступень {element.parameters.FirstOrDefault(x => x.name == "Номер ступени").text}";
+
+            element.article = $"ekStep{element.parameters.FirstOrDefault(x => x.name == "Номер ступени").text}";
+            element.fullnameElement = "ЭК " + check24VorSK;
+            element.stringParameters = "3Ф; " + element.parameters.FirstOrDefault(x => x.name == "Мощность ступени").text + "кВт";
+
+            element.printForSila = true;
+        }
         private static void UpdateInfo_OTHER(WorkElement element)
         {
 
@@ -165,5 +216,6 @@ namespace BZAnalizer.Service
                 }
             }
         }
+
     }
 }
