@@ -12,6 +12,23 @@ namespace BZAnalizer.Service
     {
         public static void Generate(List<WorkElement> elements, string powerPath, string controlPath)
         {
+            List<WorkElement> dopElems = new List<WorkElement>();
+            foreach (WorkElement element in elements)
+            {
+                if (element.childrenElements.Count > 0)
+                {
+                    foreach (var dEl in element.childrenElements) 
+                    {
+                        dopElems.Add(dEl);
+                    }
+                }
+            }
+            foreach(var dopElem in dopElems)
+            {
+                elements.Add(dopElem);
+            }
+
+
             if (!String.IsNullOrEmpty(powerPath))
                 PowerExcelGen.Generate(elements.Where(x => x.printForSila).ToList(), powerPath);
             if (!String.IsNullOrEmpty(controlPath)) 

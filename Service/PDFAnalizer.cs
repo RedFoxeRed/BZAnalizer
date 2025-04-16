@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BZAnalizer.Models;
 using iTextSharp.text.pdf;
@@ -62,8 +63,29 @@ namespace BZAnalizer.Service
             {
                 List<MainBlock> parameters = new List<MainBlock>();
                 SeparateText(parameters, DataFields.BlockParameters[block.name], block.text, true);
-                if(block.name != "Нагреватель электрический")
-                    elements.Add(new WorkElement(block.name, block.text, parameters, true));
+                if (block.name != "Нагреватель электрический")
+                {
+                    
+                    if(block.name.ToLower().Contains("вентилятор"))
+                    {
+                        int count = 1;
+                        string pattern = @"(\d+)\s*шт";
+
+                        // Поиск совпадений
+                        Match match = Regex.Match(block.text, pattern);
+
+                        if (match.Success)
+                        {
+                            // Извлечение числа из найденного совпадения
+                            count = int.Parse(match.Groups[1].Value);
+                        }
+                        
+                        for(int i = 0; i < count; i++)
+                            elements.Add(new WorkElement(block.name, block.text, parameters, true));
+                    }
+                    else
+                        elements.Add(new WorkElement(block.name, block.text, parameters, true));
+                }
                 else
                 {
                     AnalizeEK(parameters, true);
@@ -74,7 +96,27 @@ namespace BZAnalizer.Service
                 List<MainBlock> parameters = new List<MainBlock>();
                 SeparateText(parameters, DataFields.BlockParameters[block.name], block.text, true);
                 if (block.name != "Нагреватель электрический")
-                    elements.Add(new WorkElement(block.name, block.text, parameters, false));
+                {
+                    if (block.name.ToLower().Contains("вентилятор"))
+                    {
+                        int count = 1;
+                        string pattern = @"(\d+)\s*шт";
+
+                        // Поиск совпадений
+                        Match match = Regex.Match(block.text, pattern);
+
+                        if (match.Success)
+                        {
+                            // Извлечение числа из найденного совпадения
+                            count = int.Parse(match.Groups[1].Value);
+                        }
+
+                        for (int i = 0; i < count; i++)
+                            elements.Add(new WorkElement(block.name, block.text, parameters, false));
+                    }
+                    else
+                        elements.Add(new WorkElement(block.name, block.text, parameters, false));
+                }
                 else
                 {
                     AnalizeEK(parameters, false);

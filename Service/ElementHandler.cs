@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UglyToad.PdfPig.AcroForms.Fields;
 
@@ -14,7 +15,9 @@ namespace BZAnalizer.Service
             {
                 { "Вентилятор", UpdateInfo_FAN },
                 { "Приточный вентилятор", UpdateInfo_FAN },
+                { "Вытяжной вентилятор", UpdateInfo_FAN },
                 { "Панель с клапаном", UpdateInfo_CLAPAN },
+                { "Клапан рециркуляционный", UpdateInfo_CLAPAN },
                 { "Блок для установки фильтрующих вставок", UpdateInfo_OTHER},
                 { "Фильтр", UpdateInfo_OTHER },
                 { "Нагреватель жидкостный", UpdateInfo_OTHER },
@@ -36,7 +39,7 @@ namespace BZAnalizer.Service
             element.fullnameElement = "Вент." + check24VorSK + "" + semistr;
 
             string powerfull = element.parameters.FirstOrDefault(x => x.name == "Мощность двигателя (кВт)").text.Trim() + " кВт; ";
-            string nominalA = element.parameters.FirstOrDefault(x => x.name == "Номинальный ток (А)").text.Trim().Replace("Опции", "").Replace("\n", "") + " А; ";
+            string nominalA = element.parameters.FirstOrDefault(x => x.name == "Номинальный ток (А)").text.Trim().Replace("Опции", "").Replace("\n", "") + "А; ";
             string fase = "1Ф; ";
             if (element.parameters.FirstOrDefault(x => x.name == "Параметры электропитания (В - тип)").text.Trim().Contains("400"))
                 fase = "3Ф; ";
@@ -50,8 +53,8 @@ namespace BZAnalizer.Service
                 List<MainBlock> lightParams = new List<MainBlock>();
                 lightParams.Add(new MainBlock("Мощность (Вт)", "10"));
                 element.childrenElements.Add(new WorkElement("Освещение", "", lightParams, element.MainOrReserve));
-            }    
-
+            }
+            element.printForSila = true;
         }
         private static void UpdateInfo_CLAPAN(WorkElement element)
         {
@@ -162,7 +165,7 @@ namespace BZAnalizer.Service
 
         public static void CheckCHPVent(List<WorkElement> elements)
         {
-            var fans = elements.Where(el => el.name == "Вентилятор" || el.name == "Приточный вентилятор").ToList();
+            var fans = elements.Where(el => el.name == "Вентилятор" || el.name == "Приточный вентилятор" || el.name == "Вытяжной вентилятор").ToList();
 
             string sinusBypass = "с синусом";
 
@@ -204,7 +207,8 @@ namespace BZAnalizer.Service
                     foreach (var f in fansSort)
                     {
                         f.powerfull = kvts[ind].ToString() + "кВт";
-                        f.fullnameElement = "ЧП " + CHPs[0].parameters.FirstOrDefault(x => x.name == "Положение ЧП").text.ToLower() + " " + sinusBypass;
+                        f.fullnameElement = "ЧП " + CHPs[0].parameters.FirstOrDefault(x => x.name == "Положение ЧП").text.ToLower().Replace("в шкафу", "внутри") + " " + sinusBypass;
+                        f.printForSila = true;
                         ind++;
 
                     }

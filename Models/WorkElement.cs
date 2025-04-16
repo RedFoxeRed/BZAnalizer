@@ -15,7 +15,7 @@ namespace BZAnalizer.Models
 
         public string name = "";
         public bool MainOrReserve = true; // true - осн, false - рез
-        string textFromPDF = "";
+        public string textFromPDF = "";
         public List<MainBlock> parameters = new List<MainBlock>();
 
         public List<WorkElement> childrenElements = new List<WorkElement>();
