@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -60,13 +61,25 @@ namespace BZAnalizer.Service
                 SeparateText(nasosSector, workList["Насос циркуляционный"], waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, true);
                 SeparateText(UVSSector, workList["Электропривод клапана"], waterSector.FirstOrDefault(x => x.name == "Электропривод клапана").text, true);
 
+                if (englishVersionCheck)
+                {
+                    TextRedactor.Redaction("Насос циркуляционный", nasosSector);
+                    TextRedactor.Redaction("Электропривод клапана", UVSSector);
+                }
+
                 elements.Add(new WorkElement("Насос циркуляционный", waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, nasosSector, true));
                 elements.Add(new WorkElement("Насос циркуляционный", waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, nasosSector, false));
                 elements.Add(new WorkElement("Электропривод клапана", waterSector.FirstOrDefault(x => x.name == "Электропривод клапана").text, UVSSector, true));
                 elements.Add(new WorkElement("Электропривод клапана", waterSector.FirstOrDefault(x => x.name == "Электропривод клапана").text, UVSSector, false));
             }
+            List<MainBlock> conderBlocks = new List<MainBlock>();
 
+            if (mainBlocks.FirstOrDefault(x => x.name == "Конденсаторный блок взрывозащищенного исполнения") != null)
+            {
+                SeparateText(conderBlocks, workList["Конденсаторный блок взрывозащищенного исполнения"], mainBlocks.FirstOrDefault(x => x.name == "Конденсаторный блок взрывозащищенного исполнения").text, true);
 
+                TextRedactor.Redaction("Конденсаторный блок взрывозащищенного исполнения", conderBlocks);
+            }
 
             foreach (var block in workBlocks) 
             {
@@ -75,7 +88,10 @@ namespace BZAnalizer.Service
 
                 if(englishVersionCheck)
                 {
-                    TextRedactor.Redaction(block.name, parameters);
+                    if(block.name != "Компрессорный блок общепромышленного исполнения")
+                        TextRedactor.Redaction(block.name, parameters);
+                    else
+                        TextRedactor.Redaction(block.name, parameters.Concat(conderBlocks).ToList());
                 }
 
                 if (block.name != "Нагреватель электрический")
@@ -113,7 +129,10 @@ namespace BZAnalizer.Service
 
                 if (englishVersionCheck)
                 {
-                    TextRedactor.Redaction(block.name, parameters);
+                    if (block.name != "Компрессорный блок общепромышленного исполнения")
+                        TextRedactor.Redaction(block.name, parameters);
+                    else
+                        TextRedactor.Redaction(block.name, parameters.Concat(conderBlocks).ToList());
                 }
 
                 if (block.name != "Нагреватель электрический")

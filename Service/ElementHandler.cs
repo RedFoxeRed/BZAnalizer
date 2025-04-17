@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -27,7 +28,8 @@ namespace BZAnalizer.Service
                 { "Освещение", UpdateInfo_LIGHT },
                 { "Насос циркуляционный", UpdateInfo_NASOS },
                 { "Электропривод клапана", UpdateInfo_UVS },
-                { "ЭК", UpdateInfo_EK }
+                { "ЭК", UpdateInfo_EK },
+                { "Компрессорный блок общепромышленного исполнения", UpdateInfo_COMPRESSOR }
             };
 
         private static void UpdateInfo_FAN(WorkElement element)
@@ -40,7 +42,7 @@ namespace BZAnalizer.Service
             element.fullnameElement = "Вент." + check24VorSK + "" + semistr;
 
             string powerfull = element.parameters.FirstOrDefault(x => x.name == "Мощность двигателя (кВт)").text.Trim() + " кВт; ";
-            string nominalA = element.parameters.FirstOrDefault(x => x.name == "Номинальный ток (А)").text.Trim().Replace("Опции", "").Replace("\n", "") + "А; ";
+            string nominalA = element.parameters.FirstOrDefault(x => x.name == "Номинальный ток (А)").text.Trim().Replace("Опции", "").Replace("\n", "") + "0 А; ";
             string fase = "1Ф; ";
             if (element.parameters.FirstOrDefault(x => x.name == "Параметры электропитания (В - тип)").text.Trim().Contains("400"))
                 fase = "3Ф; ";
@@ -176,7 +178,17 @@ namespace BZAnalizer.Service
                 }
             }
         }
+        public static void UpdateInfo_COMPRESSOR(WorkElement element)
+        {
+            element.description = "Compressor and condenser unit (cabinet)/\r\nКомпрессорно-конденсаторный блок (шкаф)";
+            element.article = "Compressor";
+            element.fullnameElement = "Кондиционер";
 
+            string phase = element.parameters.FirstOrDefault(x => x.name == "Напряжение сети").text.Contains("400") ? "3Ф" : "1Ф";
+
+            element.stringParameters = element.parameters.FirstOrDefault(x => x.name == "Общая потребляемая мощность (кВт)").text + " кВт; " + element.parameters.FirstOrDefault(x => x.name == "Общий потребляемый ток (А)").text + " А; " + phase;
+            element.printForSila = true;
+        }
         private static void UpdateInfo_OTHER(WorkElement element)
         {
 
@@ -198,7 +210,7 @@ namespace BZAnalizer.Service
 
                     foreach(var chp in CHPs)
                     {
-                        int countEl = Convert.ToInt32(chp.parameters.FirstOrDefault(x => x.name == "Кол-во ЧП").text);
+                        int countEl = Convert.ToInt32(Regex.Replace(chp.parameters.FirstOrDefault(x => x.name == "Кол-во ЧП").text, @"[^0-9]", ""));
 
                         for (int i = 0; i < countEl; i++)
                         {
