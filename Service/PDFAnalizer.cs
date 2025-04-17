@@ -27,6 +27,15 @@ namespace BZAnalizer.Service
 
             SeparateText(mainBlocks, DataFields.mainBLockNames, fullText);
 
+            var workList = DataFields.BlockParameters;
+
+            bool englishVersionCheck = false;
+
+            if (mainBlocks[0].text.Contains("Установка") && mainBlocks[0].text.Contains("Unit"))
+            {
+                workList = DataFields.EnglishBlockParameters;
+                englishVersionCheck = true;
+            }
 
             if (mainBlocks.FirstOrDefault(x => x.name == "Рабочая установка") != null)
             {
@@ -43,13 +52,13 @@ namespace BZAnalizer.Service
             {
                 List<MainBlock> waterSector = new List<MainBlock>();
 
-                SeparateText(waterSector, DataFields.BlockParameters["Узел водосмесительный"], mainBlocks.FirstOrDefault(x => x.name == "Узел водосмесительный").text, true);
+                SeparateText(waterSector, workList["Узел водосмесительный"], mainBlocks.FirstOrDefault(x => x.name == "Узел водосмесительный").text, true);
 
                 List<MainBlock> nasosSector = new List<MainBlock>();
                 List<MainBlock> UVSSector = new List<MainBlock>();
 
-                SeparateText(nasosSector, DataFields.BlockParameters["Насос циркуляционный"], waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, true);
-                SeparateText(UVSSector, DataFields.BlockParameters["Электропривод клапана"], waterSector.FirstOrDefault(x => x.name == "Электропривод клапана").text, true);
+                SeparateText(nasosSector, workList["Насос циркуляционный"], waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, true);
+                SeparateText(UVSSector, workList["Электропривод клапана"], waterSector.FirstOrDefault(x => x.name == "Электропривод клапана").text, true);
 
                 elements.Add(new WorkElement("Насос циркуляционный", waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, nasosSector, true));
                 elements.Add(new WorkElement("Насос циркуляционный", waterSector.FirstOrDefault(x => x.name == "Насос циркуляционный").text, nasosSector, false));
@@ -62,7 +71,13 @@ namespace BZAnalizer.Service
             foreach (var block in workBlocks) 
             {
                 List<MainBlock> parameters = new List<MainBlock>();
-                SeparateText(parameters, DataFields.BlockParameters[block.name], block.text, true);
+                SeparateText(parameters, workList[block.name], block.text, true);
+
+                if(englishVersionCheck)
+                {
+                    TextRedactor.Redaction(block.name, parameters);
+                }
+
                 if (block.name != "Нагреватель электрический")
                 {
                     
@@ -94,7 +109,13 @@ namespace BZAnalizer.Service
             foreach (var block in reserveBlocks)
             {
                 List<MainBlock> parameters = new List<MainBlock>();
-                SeparateText(parameters, DataFields.BlockParameters[block.name], block.text, true);
+                SeparateText(parameters, workList[block.name], block.text, true);
+
+                if (englishVersionCheck)
+                {
+                    TextRedactor.Redaction(block.name, parameters);
+                }
+
                 if (block.name != "Нагреватель электрический")
                 {
                     if (block.name.ToLower().Contains("вентилятор"))
@@ -124,10 +145,23 @@ namespace BZAnalizer.Service
             }
 
             List<MainBlock> parametersDevices = new List<MainBlock>();
-            SeparateText(parametersDevices, DataFields.BlockParameters["Контрольно-измерительные приборы и элементы автоматики"], mainBlocks.FirstOrDefault(x => x.name == "Контрольно-измерительные приборы и элементы автоматики").text, true);
-            
-            foreach(var device in parametersDevices)
+            if(mainBlocks.FirstOrDefault(x => x.name == "Контрольно-измерительные приборы и элементы автоматики") != null)
+                SeparateText(parametersDevices, workList["Контрольно-измерительные приборы и элементы автоматики"], mainBlocks.FirstOrDefault(x => x.name == "Контрольно-измерительные приборы и элементы автоматики").text, true);
+            else
+                SeparateText(parametersDevices, workList["Комплект датчиков / Sensor kit:"], mainBlocks.FirstOrDefault(x => x.name == "Комплект датчиков / Sensor kit:").text, true);
+
+
+
+            foreach (var device in parametersDevices)
             {
+                if (device.name.Contains("азователь") && device.name.Contains("Част"))
+                {
+                    device.name = "Частотный преобразователь";
+                    device.text = device.text.Replace("/ Frequency converter ", "").Replace("кВ т", "кВт");
+                    device.text = device.text.Substring(0, device.text.IndexOf(" pcs") - 3);
+                }
+
+
                 elements.Add(new WorkElement(device.name, device.text));
             }
             ElementHandler.CheckCHPVent(elements);

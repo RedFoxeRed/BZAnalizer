@@ -116,6 +116,7 @@
     <Compile Include="Service\ExcelGen.cs" />
     <Compile Include="Service\PDFAnalizer.cs" />
     <Compile Include="Service\PowerExcelGen.cs" />
+    <Compile Include="Service\TextRedactor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

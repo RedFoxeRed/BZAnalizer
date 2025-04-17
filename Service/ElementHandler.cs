@@ -18,8 +18,9 @@ namespace BZAnalizer.Service
                 { "Вытяжной вентилятор", UpdateInfo_FAN },
                 { "Панель с клапаном", UpdateInfo_CLAPAN },
                 { "Клапан рециркуляционный", UpdateInfo_CLAPAN },
+                { "Блок воздухозаборный", UpdateInfo_CLAPAN },
                 { "Блок для установки фильтрующих вставок", UpdateInfo_OTHER},
-                { "Фильтр", UpdateInfo_OTHER },
+                { "Фильтр", UpdateInfo_FILTER },
                 { "Нагреватель жидкостный", UpdateInfo_OTHER },
                 { "Испаритель", UpdateInfo_OTHER },
                 { "Прогрев", UpdateInfo_PROGREV },
@@ -48,12 +49,16 @@ namespace BZAnalizer.Service
             string ks = Math.Round((Convert.ToDouble(element.parameters.FirstOrDefault(x => x.name == "Потреб. мощность рабочего колеса (кВт)").text.Replace(".", ",").Trim()) / Convert.ToDouble(element.parameters.FirstOrDefault(x => x.name == "Мощность двигателя (кВт)").text.Replace(".", ",").Trim())), 2).ToString() + "Кс";
             element.stringParameters = (powerfull + nominalA + fase + kpd + ks).Replace(".", ",");
 
-            if(!element.parameters.FirstOrDefault(x => x.name == "Светильник").text.Contains("ет"))
+            if (element.parameters.FirstOrDefault(x => x.name == "Светильник") != null)
             {
-                List<MainBlock> lightParams = new List<MainBlock>();
-                lightParams.Add(new MainBlock("Мощность (Вт)", "10"));
-                element.childrenElements.Add(new WorkElement("Освещение", "", lightParams, element.MainOrReserve));
+                if (!element.parameters.FirstOrDefault(x => x.name == "Светильник").text.Contains("ет"))
+                {
+                    List<MainBlock> lightParams = new List<MainBlock>();
+                    lightParams.Add(new MainBlock("Мощность (Вт)", "10"));
+                    element.childrenElements.Add(new WorkElement("Освещение", "", lightParams, element.MainOrReserve));
+                }
             }
+
             element.printForSila = true;
         }
         private static void UpdateInfo_CLAPAN(WorkElement element)
@@ -158,6 +163,20 @@ namespace BZAnalizer.Service
 
             element.printForSila = true;
         }
+
+        public static void UpdateInfo_FILTER(WorkElement element)
+        {
+            if(element.parameters.FirstOrDefault(x => x.name == "Светильник") != null)
+            {
+                if (!element.parameters.FirstOrDefault(x => x.name == "Светильник").text.Contains("ет"))
+                {
+                    List<MainBlock> lightParams = new List<MainBlock>();
+                    lightParams.Add(new MainBlock("Мощность (Вт)", "10"));
+                    element.childrenElements.Add(new WorkElement("Освещение", "", lightParams, element.MainOrReserve));
+                }
+            }
+        }
+
         private static void UpdateInfo_OTHER(WorkElement element)
         {
 

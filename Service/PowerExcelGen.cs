@@ -26,6 +26,37 @@ namespace BZAnalizer.Service
 
             FileInfo fileInfo = new FileInfo(excelFilePath);
 
+            int numberSystem = 1;
+            foreach(var el in elements.Where(x => x.MainOrReserve))
+            {
+                if (el.sysNumber != "0")
+                    continue;
+                string parameters = el.stringParameters;
+                string fullname = el.fullnameElement;
+
+                var SimilarElement = elements.FirstOrDefault(x =>
+                {
+                    if(x.sysNumber == "0" && parameters == x.stringParameters && fullname == x.fullnameElement && !x.MainOrReserve)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+                el.sysNumber = numberSystem.ToString();
+
+                if (SimilarElement != null)
+                {
+                    SimilarElement.sysNumber = numberSystem.ToString();
+                }
+
+                numberSystem++;
+            }
+
+
             using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
                 // Открываем второй лист

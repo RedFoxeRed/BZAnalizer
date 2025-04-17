@@ -13,7 +13,7 @@ namespace BZAnalizer
         static void Main(string[] args)
         {
             ExcelPackage.License.SetNonCommercialPersonal("kku"); 
-            string path = "C:\\Users\\kku\\Desktop\\папка БЗ\\testpdfgovna.pdf";
+            string path = "C:\\Users\\kku\\Desktop\\папка БЗ\\EnglishRussianHueta.pdf";
 
             string pathSila = "C:\\Users\\kku\\Desktop\\Проверка АГХК сила.XLSX";
             string pathControl = "";

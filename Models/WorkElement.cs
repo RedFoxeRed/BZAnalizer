@@ -29,7 +29,7 @@ namespace BZAnalizer.Models
         public string stringParameters; // Параметры элемента
         public string mainOrReserveString; // осн/рез
         public string numberVvod; // Ввод (1 / 2)
-        public string sysNumber = "1"; // Номер системы
+        public string sysNumber = "0"; // Номер системы
         public bool printForSila = false;
 
         #endregion
@@ -55,7 +55,7 @@ namespace BZAnalizer.Models
             {
                 double pwr = GetPowerCHP(textFromPDF);
                 string plce = textFromPDF.Contains("шкафу") ? "В шкафу" : "Снаружи";
-                string countE = textFromPDF.Substring(textFromPDF.Trim().Length - 5).Trim().Replace("шт", "").Replace(" ", "");
+                string countE = textFromPDF.Substring(textFromPDF.Trim().Length - 5).Trim().Replace("шт.", "").Replace("шт", "").Replace(" ", "");
 
 
                 this.parameters.Add(new MainBlock("Мощность ЧП", pwr.ToString()));
